@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>NSBM | Content Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body>
+<div th:replace="fragments/navbar :: navbar"></div>
+<div class="container py-4">
+    <div th:replace="fragments/alerts :: alerts"></div>
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Latest Announcements</h5>
+                </div>
+                <div class="card-body">
+                    <div th:if="${#lists.isEmpty(latestAnnouncements)}" class="text-muted">No announcements yet.</div>
+                    <div th:each="announcement : ${latestAnnouncements}" class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <h6 th:text="${announcement.title}">Title</h6>
+                            <span class="badge text-bg-warning" th:if="${announcement.important}">Important</span>
+                        </div>
+                        <p class="small text-muted" th:text="${#strings.abbreviate(announcement.content, 120)}">Preview</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5>Content Pipeline</h5>
+                    <p class="text-muted">Plan, publish, and review academic and services content.</p>
+                    <div class="d-grid gap-2">
+                        <a class="btn btn-outline-primary" th:href="@{/content/manage}">Content CMS</a>
+                        <a class="btn btn-outline-success" th:href="@{/announcements/manage}">Announcements CMS</a>
+                        <a class="btn btn-outline-secondary" th:href="@{/timetables/manage}">Timetable CMS</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5>Key Metrics</h5>
+                    <ul class="list-unstyled small">
+                        <li>Pending Accounts: <span class="fw-bold" th:text="${pendingCount}">0</span></li>
+                        <li>Published Content: <span class="fw-bold" th:text="${#lists.size(featuredContent)}">0</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>
