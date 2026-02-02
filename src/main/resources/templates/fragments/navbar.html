@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Navbar</title>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary" th:fragment="navbar">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" th:href="@{/dashboard}">NSBM UMS</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
+                aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mainNavbar">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/dashboard}">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/content}">Content</a>
+                </li>
+                <li class="nav-item" th:if="${#authorization.expression('isAuthenticated()')}">
+                    <a class="nav-link" th:href="@{/services/shuttles}">Shuttle Hub</a>
+                </li>
+                <li class="nav-item" th:if="${#authorization.expression('isAuthenticated()')}">
+                    <a class="nav-link" th:href="@{/services/boarding}">Boarding Network</a>
+                </li>
+                <li class="nav-item" th:if="${#authorization.expression('isAuthenticated()')}">
+                    <a class="nav-link" th:href="@{/clubs}">Clubs</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/announcements}">Announcements</a>
+                </li>
+                <li class="nav-item" th:if="${#authorization.expression('hasRole(''USER'') or hasRole(''ADMIN'')')}">
+                    <a class="nav-link" th:href="@{/semesters}">Semester Hub</a>
+                </li>
+                <li class="nav-item" th:if="${#authorization.expression('hasAnyRole(''ADMIN'',''MODERATOR'')')}">
+                    <a class="nav-link" th:href="@{/moderator/approvals}">Approvals</a>
+                </li>
+                <li class="nav-item" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                    <a class="nav-link" th:href="@{/admin/users}">Manage Users</a>
+                </li>
+                <li class="nav-item" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                    <a class="nav-link" th:href="@{/admin/batches}">Batches</a>
+                </li>
+                <li class="nav-item" th:if="${#authorization.expression('hasAnyRole(''ADMIN'',''MODERATOR'',''CONTENT_MANAGER'',''EDITOR'',''BOARDING_GUARDIAN'',''SHUTTLE_DRIVER'')')}">
+                    <a class="nav-link" th:href="@{/content/manage}">Content CMS</a>
+                </li>
+                <li class="nav-item" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                    <a class="nav-link" th:href="@{/admin/clubs}">Clubs Admin</a>
+                </li>
+                <li class="nav-item" th:if="${#authorization.expression('hasRole(''CLUB_PRESIDENT'')')}">
+                    <a class="nav-link" th:href="@{/club/manage}">Club Workspace</a>
+                </li>
+                <li class="nav-item" th:if="${#authorization.expression('hasAnyRole(''ADMIN'',''CONTENT_MANAGER'',''EDITOR'')')}">
+                    <a class="nav-link" th:href="@{/announcements/manage}">Announcements CMS</a>
+                </li>
+                <li class="nav-item" th:if="${#authorization.expression('hasAnyRole(''ADMIN'',''CONTENT_MANAGER'',''EDITOR'')')}">
+                    <a class="nav-link" th:href="@{/timetables/manage}">Timetable CMS</a>
+                </li>
+            </ul>
+            <div class="d-flex flex-column flex-lg-row align-items-lg-center gap-2">
+                <div class="btn-group" role="group" th:if="${#authorization.expression('isAnonymous()')}">
+                    <a class="btn btn-outline-light btn-sm" th:href="@{/login}">Student Login</a>
+                    <a class="btn btn-outline-light btn-sm" th:href="@{/login/guardian}">Boarding Login</a>
+                    <a class="btn btn-outline-light btn-sm" th:href="@{/login/shuttle}">Shuttle Login</a>
+                </div>
+                <form class="ms-lg-2" th:if="${#authorization.expression('isAuthenticated()')}" th:action="@{/logout}" method="post">
+                    <button class="btn btn-outline-light" type="submit">Logout</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</nav>
+</body>
+</html>
