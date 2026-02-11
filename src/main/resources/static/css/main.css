@@ -1,0 +1,91 @@
+:root {
+    --nsbm-deep: #003459;
+    --nsbm-green: #27ae60;
+    --nsbm-sun: #f9c74f;
+    --nsbm-slate: #f6f9fc;
+    --nsbm-text: #1c2b36;
+    --nsbm-muted: #6c7a89;
+}
+
+body {
+    font-family: "Space Grotesk", "Segoe UI", sans-serif;
+    background-color: var(--nsbm-slate);
+    color: var(--nsbm-text);
+    min-height: 100vh;
+}
+
+.navbar-brand {
+    letter-spacing: 0.12rem;
+}
+
+.stat-card {
+    border-radius: 1rem;
+    background: linear-gradient(135deg, var(--nsbm-deep), #0f6ba8);
+    color: #fff;
+}
+
+.card {
+    border: none;
+    border-radius: 1rem;
+}
+
+.card-header {
+    border-bottom: none;
+}
+
+.btn-outline-secondary {
+    border-width: 2px;
+}
+
+.table thead {
+    background-color: #eef2f7;
+}
+
+.alert {
+    border-radius: 0.8rem;
+}
+
+.badge {
+    letter-spacing: 0.08rem;
+}
+
+form select:focus, form input:focus, form textarea:focus {
+    border-color: var(--nsbm-deep);
+    box-shadow: 0 0 0 0.2rem rgba(0, 52, 89, 0.15);
+}
+
+.pagination .page-link {
+    border-radius: 999px;
+    margin: 0 0.25rem;
+}
+
+.table-responsive {
+    border-radius: 1rem;
+    background: #fff;
+}
+
+.btn-success {
+    background-color: var(--nsbm-green);
+    border-color: var(--nsbm-green);
+}
+
+.btn-outline-primary {
+    border-width: 2px;
+}
+
+.category-chip {
+    display: inline-flex;
+    gap: 0.35rem;
+    align-items: center;
+    background: rgba(0, 52, 89, 0.08);
+    border-radius: 999px;
+    padding: 0.35rem 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .d-flex.align-items-lg-center {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 1rem;
+    }
+}
