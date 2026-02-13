@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Campus Stream</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body>
+<div th:replace="fragments/navbar :: navbar"></div>
+<div class="container-xxl py-4 social-feed-shell">
+    <div th:replace="fragments/alerts :: alerts"></div>
+
+    <section class="social-hero text-white mb-4">
+        <div class="row align-items-center g-4 position-relative">
+            <div class="col-lg-5">
+                <p class="mini-chip mb-2 text-uppercase">Campus Stream</p>
+                <h1 class="display-5 fw-semibold mb-3" th:text="${pageTitle}">Campus Stream</h1>
+                <p class="text-white-50 mb-4">Broadcast wins, spotlight services, and keep every cohort in sync.</p>
+                <div class="chip-row mt-3 flex-wrap">
+                    <a class="chip-filter active" th:href="@{/social/feed}">All cohorts</a>
+                    <span class="chip-filter disabled">Faculty pods</span>
+                    <span class="chip-filter disabled">Semester hubs</span>
+                </div>
+                <ul class="social-live-ticker mt-4">
+                    <li>
+                        <strong th:text="${feedPage.totalElements}">0</strong>
+                        <span>Total stories</span>
+                    </li>
+                    <li>
+                        <strong th:text="${feedPage.numberOfElements}">0</strong>
+                        <span>Live this page</span>
+                    </li>
+                    <li>
+                        <strong th:text="${reactedPostIds.size()}">0</strong>
+                        <span>Your reactions</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-lg-7">
+                <div class="composer-card p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <p class="text-uppercase small text-white-50 mb-0">Share an update</p>
+                        <small class="text-white-50" th:text="'Posting as ' + (selectedProfile.fullName != null ? selectedProfile.fullName : selectedProfile.studentId)">Posting as Student</small>
+                    </div>
+                    <form th:action="@{/social/posts}" method="post" enctype="multipart/form-data" class="d-flex flex-column gap-3">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                        <textarea class="form-control composer-textarea" name="body" rows="4" placeholder="Announce wins, ask for help, or shout out your cohort" required></textarea>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label text-white-50 mb-1">Visibility</label>
+                                <select class="form-select" name="visibility">
+                                    <option th:each="option : ${availableVisibilities}"
+                                            th:value="${option}"
+                                            th:text="${option}"></option>
+                                </select>
+                                <small class="text-white-50">Semester / faculty targeting locks to your cohort.</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-white-50 mb-1">Add media</label>
+                                <input class="form-control" type="file" name="mediaFiles" multiple accept="image/*" data-media-input>
+                                <small class="text-white-50">Upload up to 4 images.</small>
+                            </div>
+                        </div>
+                        <div class="composer-actions d-flex flex-wrap gap-2">
+                            <span class="composer-chip">📷 Photos</span>
+                            <span class="composer-chip">🏷️ Mention cohort</span>
+                            <span class="composer-chip">🎯 Visibility settings</span>
+                        </div>
+                        <div class="d-flex flex-wrap gap-3 justify-content-end composer-meta">
+                            <small class="text-white-50 me-auto">Media uploads appear instantly in the feed.</small>
+                            <button class="btn btn-light-pill px-4" type="submit">Publish update</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="social-feed-toolbar glass-panel-subtle p-3 mb-4 d-flex flex-wrap gap-3 align-items-center">
+        <div class="d-flex gap-2 flex-wrap">
+            <span class="toolbar-chip active">Latest</span>
+            <span class="toolbar-chip">Popular</span>
+            <span class="toolbar-chip">My cohorts</span>
+        </div>
+        <div class="ms-auto d-flex align-items-center gap-3 text-white-50 small flex-wrap">
+            <span>Showing page <strong th:text="${feedPage.number + 1}">1</strong> / <strong th:text="${feedPage.totalPages}">1</strong></span>
+            <span class="badge rounded-pill bg-info-subtle text-white">Real-time</span>
+        </div>
+    </div>
+
+    <section class="social-timeline">
+        <div th:if="${feedPage.content.isEmpty()}" class="alert alert-info">
+            No posts yet. Break the silence with your first update!
+        </div>
+        <div class="d-flex flex-column gap-4">
+            <article class="post-card" th:each="post : ${feedPage.content}">
+                <div class="post-card-inner p-4">
+                    <div class="d-flex align-items-start gap-3 post-header">
+                        <div class="avatar-ring flex-shrink-0">
+                            <span class="fw-semibold" th:text="${#strings.substring(#strings.defaultString(post.author.fullName, post.author.studentId), 0, 1)}">A</span>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center flex-wrap gap-2">
+                                <strong th:text="${post.author.fullName != null ? post.author.fullName : post.author.studentId}">Author</strong>
+                                <span class="post-visibility-badge text-uppercase" th:text="${post.visibility}">PUBLIC</span>
+                                <span class="badge bg-warning text-dark" th:if="${post.pinned}">Pinned</span>
+                            </div>
+                            <p class="text-white-50 small mb-0">
+                                <span th:text="${post.author.studentId}">STU01</span>
+                                <span class="mx-2">•</span>
+                                <span th:text="${#temporals.format(post.createdAt, 'dd MMM yyyy • HH:mm')}">Date</span>
+                            </p>
+                        </div>
+                        <form th:if="${deletablePostIds.contains(post.id)}"
+                              th:action="@{|/social/posts/${post.id}/delete|}"
+                              method="post"
+                              class="ms-auto"
+                              onsubmit="return confirm('Delete this post?');">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <input type="hidden" name="redirectTo" th:value="${currentFeedPath}">
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                        </form>
+                    </div>
+
+                    <div class="post-body mt-3">
+                        <p class="fs-6 mb-3" th:text="${post.body}">Body</p>
+                        <div class="media-mosaic"
+                             th:if="${post.media != null and !post.media.isEmpty()}"
+                             th:attr="data-media-count=${post.media.size()}">
+                            <figure class="media-mosaic-item" th:each="media : ${post.media}">
+                                <img th:src="${media.storagePath}"
+                                     th:alt="${'Attachment from ' + (post.author.fullName != null ? post.author.fullName : post.author.studentId)}"
+                                     loading="lazy">
+                            </figure>
+                        </div>
+                    </div>
+
+                    <div class="post-meta-bar">
+                        <span>👍 <strong th:text="${reactionSummaries.get(post.id).likes}">0</strong></span>
+                        <span>👎 <strong th:text="${reactionSummaries.get(post.id).dislikes}">0</strong></span>
+                        <span>💬 <strong th:text="${commentMap.get(post.id).size()}">0</strong></span>
+                    </div>
+
+                    <div class="post-actions">
+                        <form th:action="@{|/social/posts/${post.id}/react|}" method="post" class="d-flex flex-wrap gap-2">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <input type="hidden" name="redirectTo" th:value="${currentFeedPath}">
+                            <div class="d-flex flex-wrap gap-2">
+                                <button class="reaction-btn" th:classappend="${userReactions.containsKey(post.id) and userReactions.get(post.id) == 'LIKE'} ? ' active' : ''"
+                                        type="submit" name="reactionType" value="LIKE">
+                                    <span aria-hidden="true">&#128077;</span>
+                                    <span th:text="${userReactions.containsKey(post.id) and userReactions.get(post.id) == 'LIKE'} ? 'Liked' : 'Like'">Like</span>
+                                </button>
+                                <button class="reaction-btn" th:classappend="${userReactions.containsKey(post.id) and userReactions.get(post.id) == 'DISLIKE'} ? ' active' : ''"
+                                        type="submit" name="reactionType" value="DISLIKE">
+                                    <span aria-hidden="true">&#128078;</span>
+                                    <span th:text="${userReactions.containsKey(post.id) and userReactions.get(post.id) == 'DISLIKE'} ? 'Disliked' : 'Dislike'">Dislike</span>
+                                </button>
+                            </div>
+                        </form>
+                        <div class="text-white-50 small d-flex flex-wrap gap-3 align-items-center">
+                            <span>Saved to campus timeline</span>
+                        </div>
+                    </div>
+
+                    <div class="comment-thread mt-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <strong>Conversation</strong>
+                            <small class="text-white-50"
+                                th:text="${#lists.isEmpty(commentMap.get(post.id)) ? 'Be the first to respond' : commentMap.get(post.id).size() + ' replies'}">Replies</small>
+                        </div>
+                        <p class="text-white-50 small" th:if="${#lists.isEmpty(commentMap.get(post.id))}">No comments yet. Spark the conversation!</p>
+                        <div class="comment-bubble" th:each="comment : ${commentMap.get(post.id)}">
+                            <div class="comment-avatar">
+                                <span th:text="${#strings.substring(#strings.defaultString(comment.author.fullName, comment.author.studentId), 0, 1)}">A</span>
+                            </div>
+                            <div class="comment-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <strong class="small" th:text="${comment.author.fullName != null ? comment.author.fullName : comment.author.studentId}">Name</strong>
+                                    <small class="text-white-50" th:text="${#temporals.format(comment.createdAt, 'dd MMM HH:mm')}">Time</small>
+                                </div>
+                                <p class="mb-0 mt-2" th:text="${comment.body}">Comment body</p>
+                            </div>
+                        </div>
+                        <form th:action="@{|/social/posts/${post.id}/comments|}" method="post" class="comment-form d-flex gap-2 mt-3">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <input type="hidden" name="redirectTo" th:value="${currentFeedPath}">
+                            <input class="form-control form-control-lg" name="body" placeholder="Write a comment..." required>
+                            <button class="btn btn-light-pill px-4" type="submit">Respond</button>
+                        </form>
+                    </div>
+                </div>
+            </article>
+        </div>
+        <nav class="mt-5" th:if="${feedPage.totalPages > 1}">
+            <ul class="pagination pagination-lg justify-content-end flex-wrap gap-2">
+                <li class="page-item" th:classappend="${feedPage.first} ? 'disabled'">
+                    <a class="page-link rounded-pill" th:href="@{|?page=${feedPage.number-1}|}">Previous</a>
+                </li>
+                <li class="page-item" th:each="i : ${#numbers.sequence(0, feedPage.totalPages-1)}" th:classappend="${i == feedPage.number} ? 'active'">
+                    <a class="page-link rounded-pill" th:text="${i+1}" th:href="@{|?page=${i}|}">1</a>
+                </li>
+                <li class="page-item" th:classappend="${feedPage.last} ? 'disabled'">
+                    <a class="page-link rounded-pill" th:href="@{|?page=${feedPage.number+1}|}">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </section>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
