@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>NSBM | Club Management</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body>
+<div th:replace="fragments/navbar :: navbar"></div>
+<div class="container-xxl py-5">
+    <div class="glass-panel p-4 p-lg-5 mb-4">
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-7">
+                <p class="mini-chip mb-2">Club Creation Studio</p>
+                <h2 class="fw-bold mb-1">Publish for your members</h2>
+                <p class="text-white-50 mb-0">Share event recaps, drop photo galleries, or upload info packs. Everything you publish lands instantly in Club Discovery for your members.</p>
+            </div>
+            <div class="col-lg-5">
+                <div class="glass-panel-subtle p-3 rounded-4">
+                    <p class="text-white-50 small mb-2">Posting is enabled only after an administrator assigns you to a club.</p>
+                    <p class="text-white-50 small mb-0">Need access? Contact Student Life or the Experience Lab team.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:if="${#lists.isEmpty(managedClubs)}" class="glass-panel text-white-50 p-4">
+        You are not assigned to any club yet. Reach out to an administrator to unlock publishing access.
+    </div>
+    <div class="row g-4" th:if="${!#lists.isEmpty(managedClubs)}">
+        <div class="col-md-6 col-xl-4" th:each="club : ${managedClubs}">
+            <div class="glass-panel h-100 d-flex flex-column gap-3">
+                <div>
+                    <p class="mini-chip mb-2">NSBM Club</p>
+                    <h5 class="mb-1" th:text="${club.name}">Club</h5>
+                    <p class="text-white-50 small mb-0" th:text="${club.tagline}">Tagline</p>
+                </div>
+                <div class="d-flex flex-wrap gap-2 text-white-50 small">
+                    <span th:text="${club.president != null ? 'Lead: ' + club.president.fullName : 'Awaiting president assignment'}">Lead</span>
+                    <span th:if="${club.whatsappLink != null}">WhatsApp ready</span>
+                </div>
+                <a class="btn btn-light-pill align-self-start" th:href="@{|/club/manage/${club.id}|}">Open Creation Studio</a>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

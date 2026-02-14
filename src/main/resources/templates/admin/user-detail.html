@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>NSBM | User Detail</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body class="governance-page user-detail-page">
+<div th:replace="fragments/navbar :: navbar"></div>
+<main class="container-xxl py-5 governance-stack">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <a class="btn btn-ghost btn-sm" th:href="@{/admin/users}">&larr; Back to User Governance</a>
+            <p class="mini-chip mt-3 mb-1">Deep dive</p>
+            <h2 class="mb-0">User dossier</h2>
+            <p class="text-white-50 mb-0">Review activity, adjust access, and resolve issues for an individual account.</p>
+        </div>
+        <div class="text-end">
+            <div class="status-pill" th:classappend="${userRecord.accountStatus.name() == 'APPROVED' ? ' success' : (userRecord.accountStatus.name() == 'PENDING' ? ' warning' : ' danger')}">
+                <span th:text="${userRecord.accountStatus}">PENDING</span>
+            </div>
+            <p class="text-white-50 small mt-2">Role: <span class="fw-semibold" th:text="${userRecord.role != null ? userRecord.role.displayName : '—'}">User</span></p>
+        </div>
+    </div>
+
+    <div class="glass-panel user-summary mb-4">
+            <!--
+            <div class="glass-panel mb-4">
+                <h5>Send Notification</h5>
+                <form th:action="@{/notifications/send}" method="post" class="row g-2">
+                    <input type="hidden" name="userId" th:value="${userRecord.id}" />
+                    <div class="col-md-4">
+                        <input class="form-control" name="title" placeholder="Title" required />
+                    </div>
+                    <div class="col-md-6">
+                        <input class="form-control" name="message" placeholder="Message" required />
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-light-pill w-100" type="submit">Send</button>
+                    </div>
+                </form>
+            </div>
+            -->
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-6">
+                <p class="mini-chip mb-2">Student ID</p>
+                <h1 class="display-6 mb-1" th:text="${userRecord.studentId}">CB000</h1>
+                <p class="fs-5 mb-0" th:text="${userRecord.fullName != null ? userRecord.fullName : 'Name pending'}">Anjalie Perera</p>
+            </div>
+            <div class="col-lg-6">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="summary-pill">
+                            <p class="label">Contact</p>
+                            <p class="value" th:text="${userRecord.contactNumber != null ? userRecord.contactNumber : 'N/A'}">+94 71 ...</p>
+                        </div>
+                    </div>
+                    <div class="col-6" th:if="${userRecord.role != null and userRecord.role.name() == 'USER'}">
+                        <div class="summary-pill">
+                            <p class="label">Cohort</p>
+                            <p class="value" th:text="${userRecord.batch != null ? userRecord.batch.name : 'Unassigned'}">24.1</p>
+                        </div>
+                    </div>
+                    <div class="col-6" th:if="${userRecord.role != null and userRecord.role.name() == 'USER'}">
+                        <div class="summary-pill">
+                            <p class="label">Semester</p>
+                            <p class="value" th:text="${userRecord.semester != null ? userRecord.semester.name : 'N/A'}">Y1 S1</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-6">
+                        <div class="summary-pill">
+                            <p class="label">Pending tasks</p>
+                            <p class="value">View timeline</p>
+                        </div>
+                    </div>
+                    <div class="col-12" th:if="${userRecord.role == null or userRecord.role.name() != 'USER'}">
+                        <div class="alert alert-info glass-panel-subtle py-2 px-3 small mb-0">
+                            Academic placement fields are hidden for non-student roles.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 quick-metrics detail-metrics mb-4">
+        <div class="col-sm-6 col-lg-3">
+            <div class="metric-card glass-panel-subtle h-100">
+                <p class="metric-label">Org pending</p>
+                <div class="metric-value" th:text="${pendingCount}">0</div>
+                <p class="metric-subtitle mb-0">Awaiting approvals overall</p>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="metric-card glass-panel-subtle h-100">
+                <p class="metric-label">Org approved</p>
+                <div class="metric-value" th:text="${approvedCount}">0</div>
+                <p class="metric-subtitle mb-0">Active users</p>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="metric-card glass-panel-subtle h-100">
+                <p class="metric-label">Org rejected</p>
+                <div class="metric-value" th:text="${rejectedCount}">0</div>
+                <p class="metric-subtitle mb-0">Blocked / archived</p>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="metric-card glass-panel-subtle h-100">
+                <p class="metric-label">Current role</p>
+                <div class="metric-value" th:text="${userRecord.role != null ? userRecord.role.displayName : '—'}">User</div>
+                <p class="metric-subtitle mb-0">Tap below to reassign</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 user-detail-grid">
+        <div class="col-12 col-lg-7">
+            <div class="glass-panel">
+                <div class="d-flex justify-content-between flex-wrap gap-2 align-items-center mb-3">
+                    <h4 class="mb-0">Approval & access</h4>
+                    <span class="text-white-50 small">Update status, role, or club at once</span>
+                </div>
+                <form th:action="@{|/admin/users/${userRecord.id}/approve|}" method="post" class="row gy-3 gx-3 align-items-end">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <div class="col-md-4">
+                        <label class="form-label small text-white-50">Role</label>
+                        <select class="form-select" name="role">
+                            <option value="">Role</option>
+                            <option th:each="roleValue : ${roles}" th:value="${roleValue}"
+                                    th:text="${roleValue.displayName}"
+                                    th:attr="disabled=${roleValue.name() == 'SUPER_ADMIN' and !canAssignSuperAdmin}"
+                                    th:selected="${roleValue == userRecord.role}"></option>
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label class="form-label small text-white-50">Club assignment</label>
+                        <select class="form-select" name="clubId">
+                            <option value="">Assign club (required for club presidents)</option>
+                            <option th:each="club : ${clubs}"
+                                    th:value="${club.id}"
+                                    th:text="${club.name}"
+                                    th:selected="${assignedClubId != null and assignedClubId == club.id}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-6" th:if="${userRecord.role != null and userRecord.role.name() == 'USER'}">
+                        <label class="form-label small text-white-50">Batch</label>
+                        <select class="form-select" name="batchId" th:attr="required=${userRecord.role != null && userRecord.role.name() == 'USER'}">
+                            <option value="">Batch</option>
+                            <option th:each="batch : ${batches}" th:value="${batch.id}" th:text="${batch.name}" th:selected="${userRecord.batch != null and batch.id == userRecord.batch.id}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-6" th:if="${userRecord.role != null and userRecord.role.name() == 'USER'}">
+                        <label class="form-label small text-white-50">Semester</label>
+                        <select class="form-select" name="semesterId" th:attr="required=${userRecord.role != null && userRecord.role.name() == 'USER'}">
+                            <option value="">Semester</option>
+                            <option th:each="semester : ${semesters}" th:value="${semester.id}" th:text="${semester.name}" th:selected="${userRecord.semester != null and semester.id == userRecord.semester.id}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-6" th:if="${userRecord.role != null and userRecord.role.name() == 'USER'}">
+                        <label class="form-label small text-white-50">Faculty</label>
+                        <select class="form-select js-faculty-select"
+                                th:id="${'detail-approval-faculty-' + userRecord.id}"
+                                name="facultyId"
+                                th:attr="data-degree-target=${'detail-approval-degree-' + userRecord.id}">
+                            <option value="" th:selected="${userRecord.faculty == null}">Faculty</option>
+                            <option th:each="faculty : ${faculties}"
+                                    th:value="${faculty.id}"
+                                    th:text="${faculty.name}"
+                                    th:selected="${userRecord.faculty != null and faculty.id == userRecord.faculty.id}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-6" th:if="${userRecord.role != null and userRecord.role.name() == 'USER'}">
+                        <label class="form-label small text-white-50">Degree</label>
+                        <select class="form-select js-degree-select"
+                                th:id="${'detail-approval-degree-' + userRecord.id}"
+                                name="degreeId"
+                                th:attr="data-faculty-source=${'detail-approval-faculty-' + userRecord.id}">
+                            <option value="" th:selected="${userRecord.degree == null}">Degree</option>
+                            <option th:each="degree : ${degrees}"
+                                    th:value="${degree.id}"
+                                    th:text="${degree.name}"
+                                    th:attr="data-faculty=${degree.faculty != null ? degree.faculty.id : ''}"
+                                    th:selected="${userRecord.degree != null and degree.id == userRecord.degree.id}"></option>
+                        </select>
+                    </div>
+                    <div class="col-12" th:if="${userRecord.role == null or userRecord.role.name() != 'USER'}">
+                        <div class="alert alert-info glass-panel-subtle py-2 px-3 small mb-0">
+                            Academic assignments appear only when this account is set to the Student role.
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <button class="btn btn-light-pill" type="submit">Save approval changes</button>
+                    </div>
+                </form>
+            </div>
+            <div class="glass-panel placement-card mt-4" th:if="${userRecord.role != null and userRecord.role.name() == 'USER'}">
+                <div class="d-flex justify-content-between flex-wrap gap-2 align-items-center mb-3">
+                    <h4 class="mb-0">Cohort placement</h4>
+                    <span class="text-white-50 small">Quick reassignment</span>
+                </div>
+                <form th:action="@{|/admin/users/${userRecord.id}/assign|}" method="post" class="row gy-3 gx-3">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    
+                    <div class="col-md-4">
+                        <label class="form-label small text-white-50">Batch</label>
+                        <select class="form-select" name="batchId" required>
+                            <option value="">Batch</option>
+                            <option th:each="batch : ${batches}" th:value="${batch.id}" th:text="${batch.name}" th:selected="${userRecord.batch != null and batch.id == userRecord.batch.id}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small text-white-50">Semester</label>
+                        <select class="form-select" name="semesterId">
+                            <option value="">Semester</option>
+                            <option th:each="semester : ${semesters}" th:value="${semester.id}" th:text="${semester.name}" th:selected="${userRecord.semester != null and semester.id == userRecord.semester.id}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small text-white-50">Faculty</label>
+                        <select class="form-select js-faculty-select"
+                                th:id="${'detail-placement-faculty-' + userRecord.id}"
+                                name="facultyId"
+                                th:attr="data-degree-target=${'detail-placement-degree-' + userRecord.id}">
+                            <option value="" th:selected="${userRecord.faculty == null}">Faculty</option>
+                            <option th:each="faculty : ${faculties}"
+                                    th:value="${faculty.id}"
+                                    th:text="${faculty.name}"
+                                    th:selected="${userRecord.faculty != null and faculty.id == userRecord.faculty.id}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small text-white-50">Degree</label>
+                        <select class="form-select js-degree-select"
+                                th:id="${'detail-placement-degree-' + userRecord.id}"
+                                name="degreeId"
+                                th:attr="data-faculty-source=${'detail-placement-faculty-' + userRecord.id}">
+                            <option value="" th:selected="${userRecord.degree == null}">Degree</option>
+                            <option th:each="degree : ${degrees}"
+                                    th:value="${degree.id}"
+                                    th:text="${degree.name}"
+                                    th:attr="data-faculty=${degree.faculty != null ? degree.faculty.id : ''}"
+                                    th:selected="${userRecord.degree != null and degree.id == userRecord.degree.id}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 ms-auto">
+                        <button class="btn btn-outline-primary w-100" type="submit">Assign</button>
+                    </div>
+                </form>
+            </div>
+            <div class="glass-panel placement-card mt-4" th:if="${userRecord.role == null or userRecord.role.name() != 'USER'}">
+                <div class="d-flex justify-content-between flex-wrap gap-2 align-items-center mb-2">
+                    <h4 class="mb-0">Cohort placement</h4>
+                    <span class="text-white-50 small">Not required</span>
+                </div>
+                <p class="text-white-50 mb-0">Academic cohorts are managed only for student accounts. No semester or faculty data is needed for this role.</p>
+            </div>
+        </div>
+        <div class="col-12 col-lg-5">
+            <div class="glass-panel mb-4">
+                <div class="d-flex justify-content-between flex-wrap gap-2 align-items-center mb-3">
+                    <h4 class="mb-0">Profile</h4>
+                    <span class="text-white-50 small">Update public info</span>
+                </div>
+                <form th:action="@{|/admin/users/${userRecord.id}/profile|}" method="post" class="row gy-3">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <div class="col-12">
+                        <label class="form-label small text-white-50">Display name</label>
+                        <input class="form-control" name="fullName" th:placeholder="${userRecord.fullName != null ? userRecord.fullName : 'Add name'}" autocomplete="off">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label small text-white-50">Contact number</label>
+                        <input class="form-control" name="contactNumber" th:placeholder="${userRecord.contactNumber != null ? userRecord.contactNumber : '+94 ...'}" autocomplete="off">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label small text-white-50">Bio</label>
+                        <textarea class="form-control" name="profileBio" rows="4" th:placeholder="${userRecord.profileBio != null ? userRecord.profileBio : 'Short description'}" th:text="${userRecord.profileBio}"></textarea>
+                    </div>
+                    <div class="col-12">
+                        <button class="btn btn-outline-success w-100" type="submit">Save profile</button>
+                    </div>
+                </form>
+            </div>
+            <div class="glass-panel credential-card" th:with="selfManaged=${userRecord.role != null and (userRecord.role.name() == 'USER' or userRecord.role.name() == 'BOARDING_GUARDIAN' or userRecord.role.name() == 'SHUTTLE_DRIVER')}">
+                <div class="d-flex justify-content-between flex-wrap gap-2 align-items-center mb-3">
+                    <h4 class="mb-0">Credentials & danger zone</h4>
+                    <span class="text-white-50 small">Rotate IDs or remove access</span>
+                </div>
+                <div class="alert alert-info glass-panel-subtle py-2 px-3 small mb-3" th:if="${selfManaged}">
+                    This account updates its own credentials through the profile "Security" panel. Admin edits are disabled.
+                </div>
+                <form th:if="${!selfManaged}" th:action="@{|/admin/users/${userRecord.id}/credentials|}" method="post" class="row gy-3 gx-3 align-items-end">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <div class="col-md-6">
+                        <label class="form-label small text-white-50">Student ID</label>
+                        <input class="form-control" name="studentId" th:placeholder="${userRecord.studentId}" autocomplete="off">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small text-white-50">Password</label>
+                        <input type="password" class="form-control" name="password" placeholder="New password" autocomplete="new-password" data-password-meter="Admin password override"
+                               pattern="(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[^A-Za-z0-9 ]).{6,}"
+                               title="Use at least 6 characters with uppercase, lowercase, number, and symbol">
+                    </div>
+                    <div class="col-12">
+                        <button class="btn btn-light-pill w-100" type="submit">Update credentials</button>
+                    </div>
+                </form>
+                <div class="danger-zone glass-panel-subtle mt-4" th:unless="${userRecord.role != null && userRecord.role.name() == 'SUPER_ADMIN'}">
+                    <p class="small text-white-50 mb-3">High-risk actions</p>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <form th:action="@{|/admin/users/${userRecord.id}/reject|}" method="post">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                <button class="btn btn-outline-warning w-100" type="submit">Reject account</button>
+                            </form>
+                        </div>
+                        <div class="col-md-6">
+                            <form th:action="@{|/admin/users/${userRecord.id}/delete|}" method="post" onsubmit="return confirm('Delete this account?');">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                <button class="btn btn-outline-danger w-100" type="submit">Delete permanently</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="danger-zone glass-panel-subtle mt-4 protected-note" th:if="${userRecord.role != null && userRecord.role.name() == 'SUPER_ADMIN'}">
+                    <p class="small text-white-50 mb-0">This Super Admin account is locked from rejection or deletion. Demote it first if you need to hand over control.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/main.js}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const cache = new Map();
+
+        function ensureCache(select) {
+            if (!select) {
+                return [];
+            }
+            if (!cache.has(select.id)) {
+                cache.set(select.id, Array.from(select.options));
+            }
+            return cache.get(select.id);
+        }
+
+        function syncPair(facultySelect, degreeSelect) {
+            if (!facultySelect || !degreeSelect) {
+                return;
+            }
+            const options = ensureCache(degreeSelect);
+            const facultyValue = facultySelect.value;
+            options.forEach(option => {
+                if (!option.dataset.faculty || facultyValue === '' || option.dataset.faculty === facultyValue) {
+                    option.hidden = false;
+                } else {
+                    option.hidden = true;
+                }
+            });
+            if (degreeSelect.selectedOptions.length && degreeSelect.selectedOptions[0].hidden) {
+                degreeSelect.value = '';
+            }
+        }
+
+        document.querySelectorAll('[data-degree-target]').forEach(facultySelect => {
+            const degreeSelect = document.getElementById(facultySelect.dataset.degreeTarget);
+            if (!degreeSelect) {
+                return;
+            }
+            ensureCache(degreeSelect);
+            const handler = () => syncPair(facultySelect, degreeSelect);
+            facultySelect.addEventListener('change', handler);
+            handler();
+        });
+    });
+</script>
+</body>
+</html>
