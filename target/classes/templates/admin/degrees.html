@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>NSBM | Degrees</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body>
+<div th:replace="fragments/navbar :: navbar"></div>
+<main class="container-xxl py-5">
+    <div class="glass-panel p-4 p-lg-5 mb-4">
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-4">
+            <div>
+                <p class="mini-chip mb-3">Degree programs</p>
+                <h2 class="fw-bold mb-1" th:text="${faculty.name}">Faculty</h2>
+                <p class="text-white-50 mb-0">Manage degree programs for this faculty.</p>
+            </div>
+            <form th:action="@{|/admin/faculties/${faculty.id}/degrees|}" method="post" class="d-flex flex-wrap gap-2">
+                <input class="form-control" name="name" placeholder="Degree name" required>
+                <input class="form-control" name="code" placeholder="Code (e.g. BScIT)" required>
+                <input class="form-control" name="description" placeholder="Description">
+                <input class="form-control" name="duration" placeholder="Duration (e.g. 4 years)">
+                <button class="btn btn-light-pill" type="submit">Add Degree</button>
+            </form>
+        </div>
+    </div>
+    <div th:replace="fragments/alerts :: alerts"></div>
+    <div class="glass-panel">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Code</th>
+                <th>Description</th>
+                <th>Duration</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="degree : ${degrees}">
+                <td th:text="${degree.name}">Degree Name</td>
+                <td th:text="${degree.code}">BScIT</td>
+                <td th:text="${degree.description}">Description</td>
+                <td th:text="${degree.duration}">4 years</td>
+                <td>
+                    <form th:action="@{|/admin/faculties/${faculty.id}/degrees/${degree.id}/update|}" method="post" class="d-inline-flex gap-2">
+                        <input class="form-control form-control-sm" name="name" th:placeholder="${degree.name}" required>
+                        <input class="form-control form-control-sm" name="code" th:placeholder="${degree.code}" required>
+                        <input class="form-control form-control-sm" name="description" th:placeholder="${degree.description}">
+                        <input class="form-control form-control-sm" name="duration" th:placeholder="${degree.duration}">
+                        <button class="btn btn-sm btn-outline-success" type="submit">Update</button>
+                    </form>
+                    <form th:action="@{|/admin/faculties/${faculty.id}/degrees/${degree.id}/delete|}" method="post" class="d-inline">
+                        <button class="btn btn-sm btn-outline-danger ms-2" type="submit" onclick="return confirm('Delete this degree?');">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <a class="btn btn-ghost mt-4" th:href="@{/admin/faculties}">&larr; Back to Faculties</a>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>
