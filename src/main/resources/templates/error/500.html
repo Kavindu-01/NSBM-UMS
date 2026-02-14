@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>500 | Server Error</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body class="bg-light">
+<div class="container py-5 text-center">
+    <h1 class="display-4 fw-bold text-warning">500</h1>
+    <p class="lead">Something went wrong on our side. The incident has been logged.</p>
+    <a class="btn btn-outline-secondary" th:href="@{/dashboard}">Return home</a>
+</div>
+</body>
+</html>

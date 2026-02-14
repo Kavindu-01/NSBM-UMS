@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>NSBM | Awaiting Assignment</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body>
+<div th:replace="fragments/navbar :: navbar"></div>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="text-center border rounded-4 p-5 shadow-sm bg-white">
+                <div class="mb-3">
+                    <span class="badge text-bg-warning text-uppercase">Pending assignment</span>
+                </div>
+                <h2 class="fw-bold mb-3">Hang tight, your semester hub isn't ready yet.</h2>
+                <p class="text-muted mb-4">Our admin team will assign you to the correct batch and semester shortly. Once linked, this page will redirect you straight into your personalized semester hub with timetables, notices, and uploads.</p>
+                <p class="text-muted small">Need faster access? Please contact the administration office with your student ID <span class="fw-semibold" th:text="${currentUser != null ? currentUser.studentId : ''}"></span>.</p>
+                <a class="btn btn-outline-primary mt-3" th:href="@{/dashboard}">Back to dashboard</a>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Navbar</title>
+</head>
+<body>
+<nav class="navbar navbar-expand-xl nav-glass" th:fragment="navbar">
+    <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/dashboard}">NSBM UMS</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMatrix"
+                aria-controls="navMatrix" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navMatrix">
+            <ul class="navbar-nav me-auto mb-3 mb-xl-0 align-items-xl-center gap-xl-2">
+                <li class="nav-item">
+                    <a class="nav-link active" th:href="@{/dashboard}">Command Deck</a>
+                </li>
+                <li class="nav-item dropdown"
+                    th:if="${#authorization.expression('!hasRole(''SHUTTLE_DRIVER'') and !hasRole(''BOARDING_GUARDIAN'')')}">
+                    <a class="nav-link dropdown-toggle" href="#" id="experienceMenu" role="button" data-bs-toggle="dropdown"
+                       aria-expanded="false">Experience Lab</a>
+                    <ul class="dropdown-menu glass-menu" aria-labelledby="experienceMenu">
+                        <li th:if="${#authorization.expression('hasRole(''CLUB_PRESIDENT'')')}"><a class="dropdown-item" th:href="@{/clubs}">Club Discovery</a></li>
+                        <li th:if="${#authorization.expression('hasRole(''CLUB_PRESIDENT'')')}"><a class="dropdown-item" th:href="@{/club/manage}">Club Creation Studio</a></li>
+                        <li th:if="${#authorization.expression('!hasRole(''CLUB_PRESIDENT'')')}"><a class="dropdown-item" th:href="@{/clubs}">Club Discovery</a></li>
+                        <li th:if="${#authorization.expression('!hasRole(''CLUB_PRESIDENT'')')}"><a class="dropdown-item" th:href="@{/social/feed}">Social Stream</a></li>
+                        <li th:if="${#authorization.expression('!hasRole(''CLUB_PRESIDENT'')')}"><a class="dropdown-item" th:href="@{/semesters}">Semester Hub</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown" th:if="${#authorization.expression('isAuthenticated() and !hasRole(''CLUB_PRESIDENT'')')}">
+                    <a class="nav-link dropdown-toggle" href="#" id="servicesMenu" role="button" data-bs-toggle="dropdown"
+                       aria-expanded="false">Student Services</a>
+                    <ul class="dropdown-menu glass-menu" aria-labelledby="servicesMenu">
+                        <li th:if="${#authorization.expression('hasAnyRole(''SHUTTLE_DRIVER'',''USER'',''ADMIN'',''SUPER_ADMIN'',''MODERATOR'',''CONTENT_MANAGER'',''EDITOR'')')}"><a class="dropdown-item" th:href="@{/services/shuttles}">Shuttle Hub</a></li>
+                        <li th:if="${#authorization.expression('hasAnyRole(''BOARDING_GUARDIAN'',''USER'',''ADMIN'',''SUPER_ADMIN'',''MODERATOR'',''CONTENT_MANAGER'',''EDITOR'')')}"><a class="dropdown-item" th:href="@{/services/boarding}">Boarding Network</a></li>
+                        <li th:if="${#authorization.expression('!hasRole(''SHUTTLE_DRIVER'') and !hasRole(''BOARDING_GUARDIAN'') and (hasRole(''USER'') or hasRole(''ADMIN'') or hasRole(''SUPER_ADMIN''))')}"><a class="dropdown-item" th:href="@{/semesters}">Semester Hub</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown" th:if="${#authorization.expression('hasAnyRole(''SUPER_ADMIN'',''ADMIN'',''MODERATOR'',''CONTENT_MANAGER'',''EDITOR'')')}">
+                    <a class="nav-link dropdown-toggle" href="#" id="creationMenu" role="button" data-bs-toggle="dropdown"
+                       aria-expanded="false">Creation Studio</a>
+                    <ul class="dropdown-menu glass-menu" aria-labelledby="creationMenu">
+                        <li><a class="dropdown-item" th:href="@{/social/feed}">Social Studio</a></li>
+                        <li><a class="dropdown-item" th:href="@{/semesters}">Semester Hub</a></li>
+                        <li><a class="dropdown-item" th:href="@{'/semesters#timetable-section'}">Timetable Builder</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown" th:if="${#authorization.expression('hasAnyRole(''SUPER_ADMIN'',''ADMIN'',''MODERATOR'')')}">
+                    <a class="nav-link dropdown-toggle" href="#" id="adminMenu" role="button" data-bs-toggle="dropdown"
+                       aria-expanded="false">Admin Sphere</a>
+                    <ul class="dropdown-menu glass-menu" aria-labelledby="adminMenu">
+                        <li th:if="${#authorization.expression('hasAnyRole(''SUPER_ADMIN'',''ADMIN'')')}"><a class="dropdown-item" th:href="@{/admin/users}">User Governance</a></li>
+                        <li th:if="${#authorization.expression('hasAnyRole(''SUPER_ADMIN'',''ADMIN'')')}"><a class="dropdown-item" th:href="@{/admin/faculties}">Faculties</a></li>
+                        <li th:if="${#authorization.expression('hasAnyRole(''SUPER_ADMIN'',''ADMIN'')')}"><a class="dropdown-item" th:href="@{/admin/batches}">Batch Matrix</a></li>
+                        <li th:if="${#authorization.expression('hasAnyRole(''SUPER_ADMIN'',''ADMIN'')')}"><a class="dropdown-item" th:href="@{/admin/clubs}">Clubs Admin</a></li>
+                        <li><a class="dropdown-item" th:href="@{/moderator/approvals}">Moderation Approvals</a></li>
+                    </ul>
+                </li>
+
+            </ul>
+            <div class="d-flex flex-column flex-xl-row gap-3 align-items-xl-center">
+                <div class="d-flex flex-column flex-md-row gap-2" th:if="${#authorization.expression('isAnonymous()')}">
+                    <a class="btn btn-light-pill" th:href="@{/login}">Student Login</a>
+                    <a class="btn btn-ghost" th:href="@{/login/guardian}">Guardian Access</a>
+                    <a class="btn btn-ghost" th:href="@{/login/shuttle}">Shuttle Access</a>
+                </div>
+                <a class="profile-chip" th:if="${navProfile != null}" th:href="@{/profile}">
+                    <span class="chip-avatar" th:style="${navProfile.avatarUrl == null} ? 'background:' + navProfile.gradient : null">
+                        <img th:if="${navProfile.avatarUrl != null}" th:src="${navProfile.avatarUrl}" alt="Avatar">
+                        <span th:if="${navProfile.avatarUrl == null}" th:text="${navProfile.initials}">AB</span>
+                    </span>
+                    <span class="chip-meta">
+                        <strong th:text="${navProfile.displayName}">User Name</strong>
+                        <small th:text="${navProfile.roleLabel}">ROLE</small>
+                    </span>
+                </a>
+                <form th:if="${#authorization.expression('isAuthenticated()')}" th:action="@{/logout}" method="post" class="d-flex justify-content-center">
+                    <button class="btn btn-light-pill" type="submit">Log out</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</nav>
+</body>
+</html>
