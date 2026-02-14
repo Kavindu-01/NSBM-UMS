@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>NSBM | Timetable</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body>
+<div th:replace="fragments/navbar :: navbar"></div>
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold">Academic Timetable</h2>
+            <p class="text-muted mb-0">View session schedules per batch and semester.</p>
+        </div>
+        <a class="btn btn-outline-secondary" th:href="@{/dashboard}">Back</a>
+    </div>
+
+    <form class="row g-3 mb-4" method="get">
+        <div class="col-md-4">
+            <label class="form-label">Batch</label>
+            <select class="form-select" name="batchId">
+                <option value="">Select batch</option>
+                <option th:each="batch : ${batches}" th:value="${batch.id}" th:text="${batch.name}"
+                        th:selected="${batch.id == selectedBatchId}"></option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Semester</label>
+            <select class="form-select" name="semesterId">
+                <option value="">Select semester</option>
+                <option th:each="semester : ${semesters}" th:value="${semester.id}" th:text="${semester.name}"
+                        th:selected="${semester.id == selectedSemesterId}"></option>
+            </select>
+        </div>
+        <div class="col-md-4 d-grid align-items-end">
+            <button class="btn btn-primary" type="submit">Load timetable</button>
+        </div>
+    </form>
+
+    <div th:if="${timetableEntries != null}" class="row row-cols-1 row-cols-md-2 g-4">
+        <div class="col" th:each="entry : ${timetableEntries}">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <span class="badge text-bg-primary" th:text="${entry.dayOfWeek}">MONDAY</span>
+                        <span class="fw-bold" th:text="${entry.timeSlot}">08:00-10:00</span>
+                    </div>
+                    <h5 class="mt-2" th:text="${entry.subject}">Subject</h5>
+                    <p class="text-muted mb-1">Lecturer: <span th:text="${entry.lecturer}">Lecturer</span></p>
+                    <p class="text-muted">Location: <span th:text="${entry.location}">Auditorium</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:if="${timetableEntries != null and #lists.isEmpty(timetableEntries)}" class="alert alert-warning">
+        No timetable entries available for the selected batch and semester.
+    </div>
+    <div th:if="${timetableEntries == null}" class="alert alert-info">
+        Select a batch and semester combination to view the timetable.
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>
